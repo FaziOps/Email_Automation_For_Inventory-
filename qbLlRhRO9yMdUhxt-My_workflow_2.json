@@ -1,0 +1,190 @@
+{
+  "name": "My workflow 2",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "da7d1e00-f84b-44c4-8d05-240cf85bab7c",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uWXJVbXeAgOgmG9p",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $json.snippet }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Order",
+              "description": "You are a professional customer support email assistant.\nWhen a new email arrives, first analyze its content and classify it into one of the following categories:\n1. Order\nIf the email is related to placing an order, purchasing a product, requesting a quotation for an order, confirming an order, or modifying/canceling an order, classify it as Order.\nGenerate a response similar to this:\nSubject: Order Confirmation\nDear Customer,\nThank you for your order. We have successfully received your request and our team is now processing it. We will review the details and send you an update, including the next steps and estimated processing time, as soon as possible.\nIf we require any additional information, we will contact you.\nThank you for choosing us.\nBest regards,\nCustomer Support Team\nRules:\nFirst determine whether the email is an Order or an Enquiry.\nGenerate only the response for the detected category.\nKeep the reply professional, polite, and concise.\nIf the email is unclear, classify it as Enquiry.\nDo not mention the classification in the email response."
+            },
+            {
+              "category": "Enquiry",
+              "description": "You are a professional customer support email assistant.\nWhen a new email arrives, first analyze its content and classify it into one of the following categories:\n2. Enquiry\nIf the email contains questions about products, services, pricing, availability, technical support, or general information, classify it as Enquiry.\nGenerate a response similar to this:\nSubject: Thank You for Your Enquiry\nDear Customer,\nThank you for contacting us. We have received your enquiry and appreciate your interest.\nOur team is reviewing your questions and will provide you with a detailed response as soon as possible. If additional information is needed, we will reach out to you.\nThank you for your patience.\nBest regards,\nCustomer Support Team\nRules:\nFirst determine whether the email is an Order or an Enquiry.\nGenerate only the response for the detected category.\nKeep the reply professional, polite, and concise.\nIf the email is unclear, classify it as Enquiry.\nDo not mention the classification in the email response."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "cc1a06c6-8eeb-416d-84bc-27469ae6089e",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        144,
+        208
+      ],
+      "id": "9204f1ac-ab2e-4139-9d41-49bc902a15a1",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lYgiaWrLTU4gtvZr",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "=models/gemini-2.5-flash",
+          "mode": "id"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=# AI Email Reply Assistant Prompt\n\nYou are an expert copywriter and my personal email assistant. Your role is to read incoming emails, understand the sender's intent, tone, and context, and generate clear, professional, and well-written email replies on my behalf.\n\n## Incoming Email\n\nAnalyze and reply to the following email:\n{{ $json.snippet }}\n\n\n---\n\n## Your Responsibilities\n\n1. Carefully analyze the incoming email.\n2. Determine whether it is an **Order** or an **Enquiry**.\n3. Generate a complete, ready-to-send email reply.\n4. Create a professional and relevant **Subject Line** for the reply.and make it seperate section of the subject box\n5. Write the complete **Email Body**, including:\n\n   * Greeting\n   * Main response\n   * Professional closing\n6. The email should be suitable for sending immediately without any edits.\n\n---\n\n## Classification Rules\n\n### Order\n\nClassify the email as an **Order** if it involves:\n\n* Placing an order\n* Requesting a quotation\n* Order confirmation\n* Order modification\n* Order cancellation\n* Shipping or delivery updates\n* Purchase requests\n\n### Enquiry\n\nClassify the email as an **Enquiry** if it involves:\n\n* Product or service questions\n* Pricing information\n* Product availability\n* Technical support\n* General information\n* Requests for clarification\n\nIf the email is unclear, treat it as an **Enquiry**.\n\n---\n\n## Writing Guidelines\n\n* Write natural, human-like responses that sound professional and confident.\n* Match the sender's tone while remaining polite and respectful.\n* Keep the response concise unless more detail is required.\n* Automatically correct grammar, spelling, and punctuation.\n* Never invent facts or make unsupported promises.\n* If important information is missing, politely ask for clarification.\n* Maintain a positive, helpful, and solution-oriented tone.\n* Adapt the writing style according to the context (business, customer support, academic, formal, or friendly).\n* Always produce a complete, polished email ready to send.\n\n---\n\n## Required Output Format\n\nReturn **only** the following structure. Do not include explanations, notes, or the detected category.\n\n**Subject:** <Generate a professional email subject line>\n\n**Email:**\n\nDear [Recipient Name],\n\n<Write the complete email response here.>\n\nKind regards,\n\nCustomer Support Team\n\n---\n\n## Important Rules\n\n* Do **not** output the category (Order or Enquiry).\n* Do **not** explain your reasoning.\n* Always generate:\n\n  1. A professional **Subject Line**.\n  2. A complete **Email Body**.\n* The subject should appear exactly as it would in an email client.\n* The email body should be formatted exactly as a real email with a greeting, body, and professional closing.\n* Ensure the entire output is ready to copy, paste, and send immediately.\n\n"
+            }
+          ]
+        },
+        "simplify": false,
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        560,
+        -48
+      ],
+      "id": "a99b9fa4-14ef-4e3a-a05e-e8e5e0e02935",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lYgiaWrLTU4gtvZr",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "=",
+        "message": "={{ $json.candidates[0].content.parts[0].text }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        912,
+        -48
+      ],
+      "id": "46ec61a3-1267-4ef2-a3fc-efef0ed0f2fe",
+      "name": "Create a draft",
+      "webhookId": "4bd9b080-da11-4a2d-9528-385755643101",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "uWXJVbXeAgOgmG9p",
+          "name": "Gmail account 2"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create a draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
